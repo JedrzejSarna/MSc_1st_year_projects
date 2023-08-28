@@ -1,4 +1,4 @@
-# MSc_1st_year_projects
+# Projects during 1st year of Masters Degree
 All projects that I have worked on during first year of my Master Degree in Statistical Data Analysis on AGH University in Krakow.
 During the first year of my Master's Degree I had the opportunity to attend some very interesting courses including:
 
