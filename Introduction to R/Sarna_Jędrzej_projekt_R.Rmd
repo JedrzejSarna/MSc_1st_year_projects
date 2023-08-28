@@ -1,0 +1,293 @@
+---
+title: "Projekt z wprowadzenia do pakietu R"
+author: "Jędrzej Sarna"
+date: "2023-01-20"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+    df_print: paged
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE)
+library("openintro")
+library("lattice")
+library("tidyverse")
+library("ggplot2")
+library("dplyr")
+library("ggthemes")
+```
+
+# Informacje o języku R
+
+![](R_logo.jpg)
+
+## Czym jest język R?
+
+Język R jest interpretowanym językiem programowania. To znaczy, że jest wczytywany, następnie interpretowany przez interpreter i dopiero wykonywany. Jest stosowany w dziedzinach związanych ze statystyką i analizą danych. Na co dzień wykorzystują go największe światowe korporacje takie jak Google, Facebook, LinkedIn, Pfizer i nie tylko. Pozwala na importowanie danych z plików o różnych formatach m.in. CSV, SQL czy arkuszy Excela. Język R umożliwia również wizualizację danych i wykorzystanie wielu typów wykresów.
+
+## Dlaczego akurat R?
+
+Jedną z największych zalet języka R są ogromne zasoby bibliotek i pakietów. Zawierają one gotowe funkcje przydatne do wykonywania obliczeń, czy prowadzenia analiz statystycznych. Gdyby ogromna baza gotowych rozwiązań okazała się niewystarczająca, użytkownicy języka R mogą skorzystać z typowych "oręży" programisty, takich jak pętle, funkcje, czy instrukcje warunkowe.
+
+Język R może być wykorzystywany w większości dziedzin związanych z analizą danych. Świetnie poradzi sobie również z uczeniem maszynowym. Oto kilka dziedzin, w których język R zdecydowanie znajdzie zastosowanie:
+
+-   data science
+
+-   business intelligence
+
+-   biostatystyka
+
+-   bioinformatyka
+
+-   machine learning
+
+-   statystyka i analiza danych
+
+-   badania naukowe
+
+źródło: <https://blog.strefakursow.pl/jezyk-r-do-czego-sluzy-i-jak-go-opanowac/>
+
+# Ramki danych
+
+## Co to ramka danych?
+
+Ramki danych (data.frame) są tablicami, których kolumny mogą być niejednorodne. Przykładowo, ramka może zawierać zarówno kolumny znakowe jak i numeryczne, ale każda kolumna zawiera elementy tego samego rodzaju. Jest to najważniejsza klasa obiektów dedykowana specjalnie do przechowywania danych.
+
+Przykładowo, w ramce danych możemy umieścić zmienne jakościowe opisywane za pomocą znaków (np. kolumnę opisującą płeć M/K osoby lub jej status społeczno-zawodowy) oraz zmienne ilościowe opisywane za pomocą liczb (np. wzrost lub wiek). Wiele narzędzi statystycznych dostępnych w R jest dedykowanych tej klasie obiektów. Ramki danych tworzone są też zazwyczaj przez R podczas importu danych.
+
+## Podstawowe operacje na ramkach danych
+
+Podstawową operacją jest utworzenie ramki danych. Ramki danych mogą być utworzone poprzez zgrupowanie wektorów `var1`, `var2`,... o tej samej długości poleceniem`data.frame(nazwa1=var1, nazwa2=var2,…).`Możliwe jest też przekształcenie macierzy w ramkę danych za pomocą polecenia `as.data.frame`.
+
+| potrzebny kod                                            | polecenie                                                                 |
+|----------------------------------------------------------|---------------------------------------------------------------------------|
+| `v1=sample(1:12,30,rep=T)`                               | Losuje ze zbioru {1...12} ciąg 30 liczb z powtórzeniami                   |
+| `v2=sample(LETTERS[1:10],30,rep=T)`                      | Losuje ze zbioru liter {A,B,...J} ciąg 30 liter z powtórzeniami           |
+| `v3=runif(30)`                                           | 30 niezależnych realizacji rozkładu jednostajnego na przedziale [0,1]     |
+| `v4=rnorm(30)`                                           | 30 niezależnych realizacji rozkładu normalnego o średniej 0 i wariancji 1 |
+| `xx=data.frame(Age=v1,Firstname=v2,Height=v3,Weight=v4)` | Tworzy ramkę danych z 4 zmiennymi i 30 osobnikami/obserwacjami            |
+| `xx$Firstname lub xx[,1]`                                | Do zmiennych możemy się odnosić poprzez \$ i nazwę                        |
+| `xx$Firstname[3] lub xx[3,1]`                            | Dostęp do trzeciego elementu wektora `xx$Firstname`                       |
+| `summary(xx)`                                            | Podstawowe statystyki dla zmiennych                                       |
+| `str(xx)`                                                | Wyświetla strukturę obiektu                                               |
+
+: Tworzenie ramek danych i podstawowe operacje na ramkach
+
+#### Przykład stworzonej ramki danych
+
+```{r}
+x=c(12220,6596,7223,357,2239,15310,6999,10921,395,3111,112958,40244,46146,1247,7629,8960,6170,4661,279,4013,12125,8233,6653,553,3178)
+A=matrix(x,nrow=5,ncol=5,byrow=T)
+df=as.data.frame(A)
+names(df)=c('n. human.','n. scisle','medyczne','sportowe','techniczne')
+row.names(df)=c('Bordeaux','Lyon','Paryz','Rennes','Tuluza')
+DT::datatable(df)
+```
+
+Na otrzymanej ramce danych możemy wykonywać różne operacje aby otrzymać istotne dla nas infromacje. Odpowiedzmy na przykładowe zapytania, jakie mogą się narodzić po zobaczeniu tabeli.
+
+1.  Jaka jest całkowita liczba studentów w każdym mieście?
+
+    ```{r}
+    (ind=apply(df,1,sum))
+
+    ```
+
+2.  Jaka jest całkowita liczba studentów na każdym kierunku?
+
+    ```{r}
+    (ind1=apply(df,2,sum))
+    ```
+
+3.  Przedstaw w nowej ramce danych tylko te miasta, gdzie liczba przyjętych na kierunki ścisłe jest wyższa niż liczba przyjęć na kierunki medyczne.
+
+    ```{r}
+    df1=df[df$`n. scisle`>df$medyczne,]
+    DT::datatable(df1)
+    ```
+
+    źródło: <https://home.agh.edu.pl/~bras/>
+
+# Pakiet lattice
+
+Do tworzenia wykresów statystycznych w R można wykorzystać pakiet *lattice* - zbiór kilkunastu szablonów, wystarczających do przedstawienia typowych podsumowań danych. Obsługa tego pakietu jest względnie prosta, jednak przez to nie jest możliwe wykonanie bardziej zaawansowanych wykresów.
+
+Na poniżej przedstawionym przykładzie dotyczącym danych o osobach palących oraz niepalących można stworzyć kilka wykresów, które zoobrazują nam pewne zależności i pozwolą dojść do podstawowych konkluzji.
+
+```{r}
+smoking
+```
+
+Jedną z opcji obrazowania danych jest histogram. Jest to jeden ze sposobów przedstawiania rozkładu empirycznego cechy.
+
+```{r}
+histogram(~age|smoke, data=smoking, xlab="Wiek",main="Histogram wieku ludzi palących oraz niepalących") 
+```
+
+Jak widzimy, jeżeli dana osoba jest osobą palącą, jest ona stosunkowo młoda. Możemy również przedstawić gęstości różnych zmiennych. Dodatkowo możemy wykonać pare wykresów obok siebie wyodrębionych ze względu na pewien czynnik, aby dobrze zilustrować różnice w danych kategoriach. Poniżej przykład takiego zastosowania.
+
+```{r}
+densityplot(~amt_weekdays|gross_income,
+            data=smoking,
+            plot.points="rug",
+            auto.key=TRUE,
+            layout=c(5,2),
+            xlab='Ilość wypalanych papierosów w tygodniu',
+            main="Wykresy ilości wypalanych papierosów w tygodniu ze względu na zarobki") 
+```
+
+Widzimy, że małe zarobki wiążą się z dużą liczbą wypalonych papierosów w tygodniu. Kolejną opcją pakietu lattice są wykresy punktowe. Tak jak w poprzednich przykładach, również możemy podzielić dane według pewnej cechy, a w przykładzie poniżej wszystko jest umieszczone na jednym wykresie. Taki format równięż ma wiele zalet.
+
+```{r}
+xyplot(amt_weekdays ~ amt_weekends,group=marital_status, data = smoking, type="p", 
+       cex=1.5,pch=1,auto.key = list(space="right"), xlab='Ilość wypalanych papierosów w tygodniu',ylab='Ilość wypalanych papierosów w weekend',main="Wykres ilości wypalanych papierosów w tygodniu oraz w weekend")  
+```
+
+Na podstawie tego wykresu możemy dojść do wniosku, że single częściej palą w weekendy niż w tygodniu. Przedstawione tutaj wykresy są tylko przykładem zastosowania pakietu lattice. Możliwości zastosowania jest znacznie więcej, jednak w celu bardziej zaawansowanej analizy i obrazowania danych lepiej posłużyć się pakietem ggplot2.
+
+# Pakiet ggplot2
+
+Pakiet ggplot ma olbrzymie możliwości. Służy on do wizualizacji danych co w dużej mierze pomaga w ich analizie. Dzięki temu pakietowi podjąłem się prostej analizy danych dotyczących osób przebywających na Titanicu podczas słynnej katastrofy z 1912 roku. Użyłem danych ze strony <https://www.kaggle.com/c/titanic/data?select=train.csv> .
+
+#### Wizualizacja danych
+
+Zacznijmy od ogólnego sprawdzenia jak wygląda stosunek osób, którym udało się przeżyć do tych którym niestety nie udało się przeżyć katastrofy.
+
+```{r}
+titanic <-read.csv('train.csv', header=TRUE)
+ggplot(titanic, aes(x=Survived)) +
+  geom_bar(fill=c("firebrick3","chartreuse4")) +
+  labs( y="Liczba pasażerów", x="Czy przeżył? (0-nie, 1-tak)", title="Stosunek przeżycia pasażerów")
+```
+
+Widzimy na jaką skalę była to katastrofa. Teraz zajmijmy się analizą komu udało się przeżyć. Najpierw chcę zobaczyć stosunek przeżycia podczas katastrofy Titanica według klasy pasażera. Zacznijmy od podziału na grupy.
+
+```{r}
+ggplot(titanic, aes(x=Pclass)) + 
+  theme_bw() + 
+  geom_bar(fill='cornflowerblue') + 
+  labs( y="Liczba pasażerów", x="Klasa pasażera", title="Liczba pasażerów ze względu na klasę")
+```
+
+Jednak to sumuje osoby, które przeżyły oraz umarły w danej kategorii. Zatem należy wyodrębnić różne typy i uwzględnić na wykresie.
+
+```{r}
+titanic$Survived <- as.factor(titanic$Survived) 
+titanic$Pclass <- as.factor(titanic$Pclass) 
+
+ggplot(titanic, aes(x=Pclass, fill=Survived)) + 
+  geom_bar() + 
+  labs( y="Liczba pasażerów", x="Klasa pasażera", title="Stosunek przeżycia ze względu na klasę")
+```
+
+Po podzieleniu danych na kategorie wykres daje ciekawsze informacje. Widać, że stosunek przeżycia w pierwszej klasie jest najwyższy co być może zgadza się z naszą intuicją. Pakiet ggplot świetnie tworzy wiele oddzielnych wykresów. Za pomocą facet_grid() wykres można podzielić na więcej niż jeden panel.
+
+```{r}
+ggplot(titanic, aes(x=Sex, fill=Survived)) + 
+  theme_bw() + geom_bar() + 
+  labs( y="Liczba pasażerów", x="Płeć",title="Stosunek przeżycia ze względu na klasę oraz płeć")+
+  facet_grid(~Pclass)
+```
+
+Można zauważyć, że zdecydowana większość kobiet przeżyła. Teraz użyję geom_jitter, aby pokazać w pewien sposób rozkład wieku wśród osób którym udało się przeżyć oraz tym którzy mieli mniej szczęścia.
+
+```{r}
+ggplot(titanic) + 
+     geom_jitter(aes(Survived, Age), width = 0.1, alpha = 0.5)
+```
+
+Widzimy lekką tendencję, że młodszym osobom prędzej udało się przeżyć.
+
+Przedstawiłem kilka wykresów, które pomagają zwizualizować dane oraz dojść do pewnych wniosków, jednak jest to tylko mała część z ogromu możliwości pakietu ggplot2.
+
+# Metody numeryczne
+
+## Metoda bisekcji
+
+**Metoda bisekcji** (ang. bisection method ), zwana również metodą połowienia lub metodą równego podziału to jedna z metod rozwiązywania równań nieliniowych. Opiera się ona na twierdzeniu Darboux.
+
+![](bisekcja.png)
+
+Twierdzenie Darboux
+
+:   Jeżeli funkcja ciągła $f(x)$ ma na końcach przedziału domkniętego wartości różnych znaków, to wewnątrz tego przedziału, istnieje co najmniej jeden pierwiastek równania $f ( x ) = 0$.
+
+Aby można było zastosować metodę równego podziału, muszą być spełnione założenia:
+
+-   funkcja $f(x)$ jest ciągła w przedziale domkniętym $[a,b]$
+
+-   funkcja przyjmuje różne znaki na końcach przedziału: $f(a)f(b)<0$
+
+### Przebieg algorytmu
+
+<ol>
+
+<li>Sprawdzenie, czy pierwiastkiem równania jest punkt $x_1=\frac{a+b}{2}$, czyli czy $f(x_1)=0$. Jeżeli tak jest, algorytm kończy działanie, a punkt $x_1$ jest szukanym miejscem zerowym.</li>
+
+<li>
+
+W przeciwnym razie. dopóki nie osiągniemy żądanej dokładności, czyli dopóki $|a-b|>\epsilon$:
+
+<ul>
+
+<li>Zgodnie ze wzorem z punktu pierwszego ponownie wyznaczane jest $x_1$, dzieląc przedział $[a,b]$ na dwa mniejsze przedziały: $[a,x_1]$ oraz $[x_1,b]$.</li>
+
+<li>Wybierany jest koniec przedziału, którego wartość funkcji posiada znak przeciwny do $f(x_1)$ i odpowiednio górny albo dolny kraniec przedziału ($b$ albo $a$) przyjmuje wartość $x_1$, tj.</li>
+
+<ul>
+
+<li>Jeżeli $f(a)f(b)<0$, to $b=x_1$,</li>
+
+<li>Jeżeli $f(x_1)f(b)<0$, to $a=x_1$.</li>
+
+</ul>
+
+</ul>
+
+<li>Po osiągnięciu żądanej dokładności algorytm kończy działanie, a szukany pierwiastek równania wynosi $\frac{a+b}{2}$.</li>
+
+</ol>
+
+### Przykład
+
+Wyznaczyć pierwiastek równania $f(x)=x^3-x+1$ w przedziale $[-2;2]$.
+
+Implementując kod w R oraz określając dokładność $\epsilon=0.0001$ dostajemy następujące miejsce zerowe danej funkcji:
+
+```{r}
+library("latex2exp")
+f=function(x){ 
+return(x^3-x+1) } 
+a=-2 
+b=2
+epsilon=0.0001
+x1=0
+while(abs(a-b)>epsilon) { 
+  x1=(a+b)/2 
+  if (abs(f(x1)) <= epsilon){ 
+    break 
+    }
+    else if (f(x1)*f(a)<0){ 
+    b=x1 
+    }
+  else{
+    a=x1 
+  } 
+} 
+(a+b)/2 
+x=seq(-2,2,by=.01)
+plot(x,f(x),type='l', col='red', main=TeX('Wykres funkcji $f(x)=x^3-x+1$ w przedziale $[-2;2]$'))
+abline(a=0,b=0)
+```
+
+Widzimy na podstawie wykresu, że wyliczone miejsce zerowe jest odpowiednie.
+
+źródło: <https://pl.wikipedia.org/wiki/Metoda_r%C3%B3wnego_podzia%C5%82u>
+
+# Podsumowanie
+
+Po semestrze spędzonym z językiem R jestem w stanie powiedzieć, że jest on bardzo przydatny. Muszę przyznać, że przy pisaniu wszelkiego rodzaju kodu (przykładowo pracy przy ramkach danych) głownie korzystam z Pythona oraz jego bibliotek, gdyż tam składnia jest dla mnie przyjemniejsza. R jednak w niektórych aspektach oferuje więcej. Dużą różnicę zauważyłem przy tworzeniu wykresów, R ma znacznie więcej możliwości i widać, że jest stworzony w szczególności pod analizę i wizualizację danych. Same laboratoria były bardzo przyjemne oraz przydatne, zestawy były dobrze skonstruowane i nie wymagały dodatkowego wyjaśnienia.
