@@ -10,4 +10,5 @@ During the first year of my Master's Degree I had the opportunity to attend some
 - Introduction to data analysis
 
 In each of the courses listed above, I had the opportunity to do a smaller or larger project that I would like to share here :)
+
 **Note: Most of the projects are done in polish language as my lectures are in polish.**
